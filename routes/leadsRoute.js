@@ -63,4 +63,22 @@ router.delete("/lead-single/:id", Auth, isSuperAdmin, async (req, res) => {
   }
 });
 
+router.post("/add-tag/:id", Auth, async (req, res) => {
+  try {
+    const { tag } = req.body;
+    if (!tag) return res.status(400).json({ message: "Tag is required" });
+    const lead = await Leads.findById(req.params.id);
+    if(!lead) return res.status(404).json({ message: "Lead not found" });
+    if (!lead.tags) lead.tags = [];
+    const isTagExists = lead.tags.includes(tag);
+    if (isTagExists) return res.status(400).json({ message: "Tag already exists" });
+    lead.tags.push(tag);
+    await lead.save();
+    res.status(200).json({ success: true, message: "Tag added successfully", data: lead});
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+
 module.exports = router;
