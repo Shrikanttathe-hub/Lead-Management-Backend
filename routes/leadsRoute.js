@@ -79,7 +79,7 @@ router.post("/add-tag/:id", Auth, async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 });
-router.put("/add-tag/:id", Auth, async (req, res) => {
+router.put("/update-tag/:id", Auth, async (req, res) => {
   try {
     const { tag } = req.body;
     const lead = await Leads.findById(req.params.id);
