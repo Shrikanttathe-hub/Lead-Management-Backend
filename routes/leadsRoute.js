@@ -81,15 +81,15 @@ router.post("/add-tag/:id", Auth, async (req, res) => {
 });
 router.put("/update-tag/:id", Auth, async (req, res) => {
   try {
-    const { tag } = req.body;
+    const { oldTag, newTag } = req.body;
     const lead = await Leads.findById(req.params.id);
-    if (!lead) return res.status(404).json({ message: "Lead not found" });
-    if (lead.tags.includes(tag)) return res.status(400).json({ message: "Tag already exists" });
-    lead.tags.push(tag);
+    const index = lead.tags.indexOf(oldTag);
+    if (index === -1) return res.status(404).json({ message: "Tag not found" });
+    lead.tags[index] = newTag;
     await lead.save();
-    res.status(200).json({success: true,message: "Tag updated successfully", data: lead });
-  } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.json({ success: true, data: lead });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
   }
 });
 router.delete("/add-tag/:id", Auth, async (req, res) => {
