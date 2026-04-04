@@ -20,7 +20,14 @@ router.post('/create',Auth, async (req, res)=> {
 
 router.get('/lead-list', Auth,  async(req, res) => {
     try{
-      const leads = await Leads.find().populate("assigned", "firstName lastName email").sort({createdAt: -1});
+      let filter = {};
+       if(req.user.role === "Support Agent"){
+        filter = {assigned: req.user.id};
+      }
+      if(req.user.role === "Sub Admin"){
+        filter = {assigned: req.user.id};
+      } 
+     const leads = await Leads.find(filter).populate("assigned", "firstName lastName email").sort({createdAt: -1});
      res.status(200).json({staus:true, message: "Leads find", data: leads});
     }catch(error){
         console.log("error", error);
@@ -85,12 +92,8 @@ router.put("/update-tag/:id", Auth, async (req, res) => {
     const lead = await Leads.findById(req.params.id);
     if (!lead) return res.status(404).json({ message: "Lead not found" });
     const index = lead.tags.findIndex(t => t === oldTag);
-    if (index === -1) {
-      return res.status(400).json({ message: "Old tag not found" });
-    }
-    if (lead.tags.includes(newTag)) {
-      return res.status(400).json({ message: "Tag already exists" });
-    }
+    if (index === -1) return res.status(400).json({ message: "Old tag not found" });
+    if (lead.tags.includes(newTag)) return res.status(400).json({ message: "Tag already exists" });
     lead.tags[index] = newTag;
     await lead.save();
     res.status(200).json({success: true, message: "Tag updated successfully", data: lead });

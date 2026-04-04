@@ -26,7 +26,6 @@ router.post('/login', async (req, res) => {
        }
         console.log("User found:", user);
         if(!user || !(await bcrypt.compare(password, user.password))) return res.status(400).json({status:false, message:"Invalid Credentials!!!"});
-        //create token with role
         const token = jwt.sign({id: user._id, email: user.email, role: role}, JWT_SECRET, {expiresIn: "1d"});
         res.status(200).json({ status: true, message: `Welcome Back ${user.firstName} !`, token, role });
     }
